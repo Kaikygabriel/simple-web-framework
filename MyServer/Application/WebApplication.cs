@@ -1,0 +1,38 @@
+using System.Net.Sockets;
+using MyServer.Abstraction;
+using MyServer.Builder;
+using MyServer.Middlewares;
+
+namespace MyServer.Application;
+
+public class WebApplication
+{
+    private List<IMiddleware> _middlewares = new List<IMiddleware>();
+    private readonly TcpListener _client;
+    private readonly int _port;
+    public WebApplication(TcpListener client,int port)
+    {
+        _client = client;
+        _port  = port;
+    }
+
+    public static WebBuilder CreateBuilder(int port =5000)
+        => new WebBuilder(port);
+    
+    public async Task Run()
+    {
+        Console.WriteLine($"Server rodando em http://localhost:{_port}" );
+        while (true)
+        {
+            var client = await _client.AcceptTcpClientAsync();
+            
+            foreach (var middleware in _middlewares)
+                await middleware.Execute(client);
+            
+            client.Close();
+        }
+    }
+
+    public void MapControllers()
+        => _middlewares.Add(new ControllerMiddleware());
+}
