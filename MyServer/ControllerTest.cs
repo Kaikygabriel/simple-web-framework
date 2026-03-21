@@ -1,25 +1,31 @@
 using MyServer.Abstraction;
 using MyServer.Attributes;
 using MyServer.Model;
+using MyServer.Model.Abstraction;
 
 namespace MyServer;
 
 public class ControllerTest : Controller
 {
-    
     [HttpGet("hello")]
-    public ActionResult Teste()
+    public ActionResult<string> Teste()
     {
-        return Ok("Hello World");
+        return "Hello World";
     }
     
     [HttpGet("Product")]
-    public ActionResult produtos()
+    public ActionResult<object> produtos()
     {
         return Ok(new
         {
             Name = "Mouse",
             Price = 12
         });
+    }
+    
+    [HttpGet("teste")]
+    public ActionResult teste()
+    {
+        return NotFound("Product is invalid");
     }
 }

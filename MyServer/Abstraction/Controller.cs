@@ -1,6 +1,5 @@
 using System.Text.Json;
-using MyServer.Model;
-
+using MyServer.Model.Abstraction;
 namespace MyServer.Abstraction;
 
 public abstract class Controller
@@ -10,5 +9,12 @@ public abstract class Controller
         if(value is string)
             return new ActionResult(value as string, "HTTP/1.1 200 OK"); 
         return new ActionResult(JsonSerializer.Serialize(value), "HTTP/1.1 200 OK");
+    }
+
+    public ActionResult NotFound<T>(T value = default)
+    {
+        if (value is string)
+            return new ActionResult(value as string, "HTTP/1.1 404 not found");
+        return new ActionResult(JsonSerializer.Serialize(value), "HTTP/1.1 404 not found");
     } 
 }

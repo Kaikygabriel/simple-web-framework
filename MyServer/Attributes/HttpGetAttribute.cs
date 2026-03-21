@@ -7,8 +7,5 @@ public class HttpGetAttribute : Attribute
     {
         this.EndPointName = EndPointName;
     }
-
     public string EndPointName { get; private init; }
-    
-    
 }

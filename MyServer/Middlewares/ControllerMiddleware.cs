@@ -4,7 +4,7 @@ using System.Text;
 using MyServer.Abstraction;
 using MyServer.Attributes;
 using MyServer.Context;
-using MyServer.Model;
+using MyServer.Model.Abstraction;
 
 namespace MyServer.Middlewares;
 
