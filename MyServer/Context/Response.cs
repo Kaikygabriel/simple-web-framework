@@ -10,6 +10,7 @@ public static class Response
             $"{status}\r\n" +
             "Content-Type: text/plain; charset=utf-8\r\n" +
             $"Content-Length: {Encoding.UTF8.GetByteCount(responseBody)}\r\n" +
+            "Connection: close\r\n" +
             "\r\n" +
             responseBody;
     }

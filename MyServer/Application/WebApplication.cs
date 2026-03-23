@@ -26,10 +26,14 @@ public class WebApplication
         {
             var client = await _client.AcceptTcpClientAsync();
             
-            foreach (var middleware in _middlewares)
-                await middleware.Execute(client);
-            
-            client.Close();
+            _ = Task.Run(async () =>
+            {
+                foreach (var middleware in _middlewares)
+                    await middleware.Execute(client);
+
+                client.Client.Shutdown(SocketShutdown.Both); // 👈 ESSENCIAL
+                client.Close();
+            });
         }
     }
 

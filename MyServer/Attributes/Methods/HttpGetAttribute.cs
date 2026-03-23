@@ -1,4 +1,4 @@
-namespace MyServer.Attributes;
+namespace MyServer.Attributes.Methods;
 
 [AttributeUsage(AttributeTargets.Method)]
 public class HttpGetAttribute : Attribute

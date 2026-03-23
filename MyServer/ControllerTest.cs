@@ -1,6 +1,7 @@
 using MyServer.Abstraction;
 using MyServer.Attributes;
-using MyServer.Model;
+using MyServer.Attributes.Methods;
+using MyServer.Attributes.Parameters;
 using MyServer.Model.Abstraction;
 
 namespace MyServer;
@@ -8,18 +9,18 @@ namespace MyServer;
 public class ControllerTest : Controller
 {
     [HttpGet("hello")]
-    public ActionResult<string> Teste()
+    public ActionResult Teste()
     {
-        return "Hello World";
+        return Ok("Hello World");
     }
     
-    [HttpGet("Product")]
-    public ActionResult<object> produtos()
+    [HttpGet("Product")] 
+    public ActionResult produtos([FromQuery]int price,[FromQuery]string name)
     {
         return Ok(new
         {
-            Name = "Mouse",
-            Price = 12
+            Name = name,
+            Price = price
         });
     }
     

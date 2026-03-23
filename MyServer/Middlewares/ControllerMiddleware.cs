@@ -3,6 +3,8 @@ using System.Reflection;
 using System.Text;
 using MyServer.Abstraction;
 using MyServer.Attributes;
+using MyServer.Attributes.Methods;
+using MyServer.Attributes.Parameters;
 using MyServer.Context;
 using MyServer.Model.Abstraction;
 
@@ -41,6 +43,24 @@ public class ControllerMiddleware : IMiddleware
         var method = parts[0];
         var path = parts[1];
 
+        var queryString = "";
+        if (path.Contains("?"))
+        {
+            var split = path.Split("?");
+            path = split[0];         // "/hello"
+            queryString = split[1];  // "name=kaiky&age=18"
+        }
+        
+        var queryParams = new Dictionary<string, string>();
+        foreach (var a in queryString.Split('&'))
+        {
+            var parameter = a.Split('=');
+            if (parameter.Length == 2)
+            {
+                queryParams[parameter[0]] = parameter[1];
+            }
+        }
+        
         string responseBody = "";
         string statusLine = "";
 
@@ -50,8 +70,33 @@ public class ControllerMiddleware : IMiddleware
             if ( atributo is not null&&path.Equals("/" + atributo.EndPointName))
             {
                 var instancia = Activator.CreateInstance(metodo.DeclaringType!);
+                var parametros = metodo.GetParameters();
 
-                var result = (ActionResult)metodo.Invoke(instancia,null)!;
+                ActionResult result;
+                if (parametros.Length > 0)
+                {
+                    var argumentos = new object?[parametros.Length];
+                    for (var p =0; p < parametros.Length ; p++)
+                    {
+                        var parametro = parametros[p];
+                        var fromQuery = parametro.GetCustomAttribute<FromQueryAttribute>();
+                    
+                        if (fromQuery != null)
+                        {
+                            var nome = fromQuery.Value ?? parametro.Name!;
+                    
+                            if (queryParams.TryGetValue(nome, out string valor))
+                                argumentos[p] = Convert.ChangeType(valor, parametro.ParameterType);
+                            else
+                                argumentos[p] = null;
+                        }
+                    } 
+                    result = (ActionResult)metodo.Invoke(instancia,argumentos)!;
+                }
+                else
+                 result = (ActionResult)metodo.Invoke(instancia,null)!;
+
+              
                 responseBody = result.ResponseBody;
                 statusLine = result.StatusLine;
             }
@@ -65,8 +110,8 @@ public class ControllerMiddleware : IMiddleware
 
         var response = Response.Create(statusLine, responseBody);
 
-        var writer = new StreamWriter(stream, Encoding.UTF8);
-        await writer.WriteAsync(response);
-        await writer.FlushAsync();
+        var responseBytes = Encoding.UTF8.GetBytes(response);
+        await stream.WriteAsync(responseBytes, 0, responseBytes.Length);
+        await stream.FlushAsync();
     }
 }
