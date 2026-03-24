@@ -31,7 +31,7 @@ public class WebApplication
                 foreach (var middleware in _middlewares)
                     await middleware.Execute(client);
 
-                client.Client.Shutdown(SocketShutdown.Both); // 👈 ESSENCIAL
+                client.Client.Shutdown(SocketShutdown.Both); 
                 client.Close();
             });
         }

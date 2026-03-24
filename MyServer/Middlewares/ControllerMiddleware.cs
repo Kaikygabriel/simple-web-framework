@@ -1,10 +1,7 @@
 using System.Net.Sockets;
-using System.Reflection;
 using System.Text;
 using MyServer.Abstraction;
-using MyServer.Attributes;
 using MyServer.Attributes.Methods;
-using MyServer.Attributes.Parameters;
 using MyServer.Context;
 using MyServer.Model.Abstraction;
 
@@ -14,12 +11,6 @@ public class ControllerMiddleware : IMiddleware
 {
     public async Task Execute(TcpClient client)
     {
-        var assembly = Assembly.GetExecutingAssembly();
-
-        var metodos = assembly.GetTypes()
-            .SelectMany(t => t.GetMethods())
-            .Where(m => m.GetCustomAttribute<HttpGetAttribute>() != null);
-        
         using var stream = client.GetStream();
         using var reader = new StreamReader(stream, Encoding.UTF8);
 
@@ -40,75 +31,17 @@ public class ControllerMiddleware : IMiddleware
         var firstLine = requestLines[0]; // GET /hello HTTP/1.1
         var parts = firstLine.Split(' ');
 
+        var verb = firstLine.Split(' ')[0];
+        
         var method = parts[0];
         var path = parts[1];
 
-        var queryString = "";
-        if (path.Contains("?"))
-        {
-            var split = path.Split("?");
-            path = split[0];         // "/hello"
-            queryString = split[1];  // "name=kaiky&age=18"
-        }
+        ActionResult? result = HttpGetAttribute.ExecuteAction(path);
+
+        if (result is null)
+            result = new("404 Not Found", "HTTP/1.1 404 Not Found");
         
-        var queryParams = new Dictionary<string, string>();
-        foreach (var a in queryString.Split('&'))
-        {
-            var parameter = a.Split('=');
-            if (parameter.Length == 2)
-            {
-                queryParams[parameter[0]] = parameter[1];
-            }
-        }
-        
-        string responseBody = "";
-        string statusLine = "";
-
-        foreach (var metodo in metodos)
-        {
-            var atributo = metodo.GetCustomAttribute<HttpGetAttribute>();
-            if ( atributo is not null&&path.Equals("/" + atributo.EndPointName))
-            {
-                var instancia = Activator.CreateInstance(metodo.DeclaringType!);
-                var parametros = metodo.GetParameters();
-
-                ActionResult result;
-                if (parametros.Length > 0)
-                {
-                    var argumentos = new object?[parametros.Length];
-                    for (var p =0; p < parametros.Length ; p++)
-                    {
-                        var parametro = parametros[p];
-                        var fromQuery = parametro.GetCustomAttribute<FromQueryAttribute>();
-                    
-                        if (fromQuery != null)
-                        {
-                            var nome = fromQuery.Value ?? parametro.Name!;
-                    
-                            if (queryParams.TryGetValue(nome, out string valor))
-                                argumentos[p] = Convert.ChangeType(valor, parametro.ParameterType);
-                            else
-                                argumentos[p] = null;
-                        }
-                    } 
-                    result = (ActionResult)metodo.Invoke(instancia,argumentos)!;
-                }
-                else
-                 result = (ActionResult)metodo.Invoke(instancia,null)!;
-
-              
-                responseBody = result.ResponseBody;
-                statusLine = result.StatusLine;
-            }
-        }
-
-        if (string.IsNullOrEmpty(responseBody) && string.IsNullOrEmpty(statusLine))
-        {
-            responseBody = "404 Not Found";
-            statusLine = "HTTP/1.1 404 Not Found";
-        }
-
-        var response = Response.Create(statusLine, responseBody);
+        var response = Response.Create(result);
 
         var responseBytes = Encoding.UTF8.GetBytes(response);
         await stream.WriteAsync(responseBytes, 0, responseBytes.Length);
