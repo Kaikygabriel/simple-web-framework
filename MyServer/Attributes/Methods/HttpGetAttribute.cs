@@ -1,11 +1,12 @@
 using System.Reflection;
+using MyServer.Abstraction;
 using MyServer.Attributes.Parameters;
 using MyServer.Model.Abstraction;
 
 namespace MyServer.Attributes.Methods;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class HttpGetAttribute : Attribute
+public class HttpGetAttribute : Attribute,IMethod
 {
     public HttpGetAttribute(string EndPointName)
     {
@@ -58,7 +59,6 @@ public class HttpGetAttribute : Attribute
                     result = (ActionResult)metodo.Invoke(instancia,null)!;
             }
         }
-
         return result;
     }
     
@@ -75,22 +75,15 @@ public class HttpGetAttribute : Attribute
     {
         var queryString = "";
         if (path.Contains("?"))
-        {
-            var split = path.Split('?');
-            path = split[0];         // "/hello"
-            queryString = split[1];  // "name=kaiky&age=18"
-        }
+            queryString =  path.Split('?')[1];  
         
         var queryParams = new Dictionary<string, string>();
         foreach (var a in queryString.Split('&'))
         {
             var parameter = a.Split('=');
             if (parameter.Length == 2)
-            {
                 queryParams[parameter[0]] = parameter[1];
-            }
         }
-
         return queryParams;
     }
 }

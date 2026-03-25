@@ -36,7 +36,7 @@ public class ControllerMiddleware : IMiddleware
         var method = parts[0];
         var path = parts[1];
 
-        ActionResult? result = HttpGetAttribute.ExecuteAction(path);
+        ActionResult? result = GetMethod(method,path);
 
         if (result is null)
             result = new("404 Not Found", "HTTP/1.1 404 Not Found");
@@ -46,5 +46,13 @@ public class ControllerMiddleware : IMiddleware
         var responseBytes = Encoding.UTF8.GetBytes(response);
         await stream.WriteAsync(responseBytes, 0, responseBytes.Length);
         await stream.FlushAsync();
+    }
+
+    private ActionResult? GetMethod(string method,string path)
+    {
+        if (method.Equals("Get", StringComparison.CurrentCultureIgnoreCase))
+            return HttpGetAttribute.ExecuteAction(path);
+
+        return null;
     }
 }
