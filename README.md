@@ -27,6 +27,6 @@ public class UserController : Controller
     [HttpGet("user/users")]
     public ActionResult GetUser()
     {
-        return new { Id = 1, Name = "Kaiky", Role = "Developer" };
+        return Ok(new { Id = 1, Name = "Kaiky", Role = "Developer" });
     }
 }
