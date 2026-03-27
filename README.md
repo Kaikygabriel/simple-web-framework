@@ -1,23 +1,32 @@
-# simple-web-framework
+# Custom ASP.NET Style Server 🚀
 
-Projeto simples desenvolvido com ASP.NET Core.
+Um servidor HTTP de alto desempenho desenvolvido do zero em **C#**, inspirado na arquitetura do **ASP.NET Core**. Este projeto foca em demonstrar o ciclo de vida completo de uma requisição, desde a captura do socket TCP até o roteamento dinâmico para controladores.
 
-## 🚀 Tecnologias
+## 📌 Sobre o Projeto
 
-* C#
-* ASP.NET Core
+O objetivo deste projeto é entender "o que acontece por baixo do capô" de frameworks modernos. Em vez de usar abstrações prontas como o Kestrel, este servidor gerencia conexões, interpreta cabeçalhos HTTP e utiliza **Reflection** para mapear rotas dinamicamente.
 
-## ▶️ Como executar
+### ✨ Funcionalidades Principais
 
-```bash
-git clone https://github.com/seu-usuario/simple-web-framework.git
-cd simple-web-framework
-dotnet run
-```
+* **HTTP Parsing:** Processamento manual de Verbos (GET, POST, PUT, DELETE), Headers e Body.
+* **Dynamic Routing:** Sistema que identifica automaticamente classes `Controller` e métodos via Reflection.
+* **Controller Base:** Abstração para criação de endpoints de forma intuitiva.
+* **JSON Serialization:** Suporte nativo para retorno de objetos em formato JSON.
+* **Thread Management:** Gerenciamento de múltiplas conexões simultâneas.
 
-Acesse no navegador:
-https://localhost:5001
+## 🛠️ Tecnologias e Conceitos
 
-## 📌 Status
+* **Linguagem:** C# (.NET )
+* **Protocolo:** TCP/IP & HTTP/1.1
 
-Em desenvolvimento
+## 💻 Exemplo de Implementação
+
+```csharp
+public class UserController : Controller
+{
+    [HttpGet("user/users")]
+    public ActionResult GetUser()
+    {
+        return new { Id = 1, Name = "Kaiky", Role = "Developer" };
+    }
+}
