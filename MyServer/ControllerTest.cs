@@ -8,10 +8,10 @@ namespace MyServer;
 
 public class ControllerTest : Controller
 {
-    [HttpGet("hello")]
-    public ActionResult Teste()
+    [HttpGet("hello/{teste}/")]
+    public ActionResult Teste([FromRoute]string teste)
     {
-        return Ok("Hello World");
+        return Ok("Hello World " +teste);
     }
     
     [HttpGet("Product")] 

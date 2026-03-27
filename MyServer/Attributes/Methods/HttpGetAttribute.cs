@@ -30,13 +30,17 @@ public class HttpGetAttribute : Attribute,IMethod
         foreach (var metodo in methods)
         {
             var atributo = metodo.GetCustomAttribute<HttpGetAttribute>();
-            if ( atributo is not null&&path.Equals("/" + atributo.EndPointName))
+            
+            if ( atributo is not null&& IsMethodVerify(path,"/"+atributo.EndPointName))
             {
+
+                Console.WriteLine($"\r \t  {atributo.EndPointName} \t \r");
                 var instancia = Activator.CreateInstance(metodo.DeclaringType!);
                 var parametros = metodo.GetParameters();
 
                 if (parametros.Length > 0)
                 {
+                    
                     var argumentos = new object?[parametros.Length];
                     for (var p =0; p < parametros.Length ; p++)
                     {
@@ -48,6 +52,23 @@ public class HttpGetAttribute : Attribute,IMethod
                             var nome = fromQuery.Value ?? parametro.Name!;
                     
                             if (queryParams.TryGetValue(nome, out var valor))
+                                argumentos[p] = Convert.ChangeType(valor, parametro.ParameterType);
+                            else
+                                argumentos[p] = null;
+                        }
+                    } 
+              
+                    var routeParams = ContainsFromRouteParameter(path, "/"+atributo.EndPointName);
+                    for (var p =0; p < parametros.Length ; p++)
+                    {
+                        var parametro = parametros[p];
+                        var fromRoute = parametro.GetCustomAttribute<FromRouteAttribute>();
+                    
+                        if (fromRoute != null)
+                        {
+                            var nome = fromRoute.Value ?? parametro.Name!;
+                    
+                            if (routeParams.TryGetValue(nome, out var valor))
                                 argumentos[p] = Convert.ChangeType(valor, parametro.ParameterType);
                             else
                                 argumentos[p] = null;
@@ -85,5 +106,63 @@ public class HttpGetAttribute : Attribute,IMethod
                 queryParams[parameter[0]] = parameter[1];
         }
         return queryParams;
+    }
+    
+    private static Dictionary<string, string> ContainsFromRouteParameter(string path,string pathBase)
+    {
+        // path -> http://localhost:5000/hello/ola
+        // pathBase -> http://localhost:5000/hello/{teste}
+        var queryString = new Dictionary<string,string>();
+        if (pathBase.Contains('{')&&pathBase.Contains('}'))
+        {
+            var pathArr = path.Split('/');
+            var pathBaseArr = pathBase.Split('/');
+            if (pathArr.Length == pathBaseArr.Length)
+            {
+                for (var a = 0; a < pathArr.Length; a++)
+                {
+                    if (pathBaseArr[a].Contains('{') && pathBaseArr[a].Contains('}'))
+                    {
+                        queryString[pathBaseArr[a]] = pathArr[a];
+                    }
+                }
+                
+            }
+        }
+
+        return queryString;
+    }
+
+    private static bool IsMethodVerify(string path,string pathBase)
+    {
+        if (pathBase.Contains('{')&&pathBase.Contains('}'))
+        {
+            var pathArr = path.Split('/');
+            var pathBaseArr = pathBase.Split('/');
+            if (pathArr.Length == pathBaseArr.Length)
+            {
+                for (var a = 0; a < pathArr.Length; a++)
+                {
+                    if (path[a].Equals(pathBase[a]))
+                    {
+                        
+                    }
+                    else if (pathBaseArr[a].Contains('{') && pathBaseArr[a].Contains('}'))
+                    {
+                        
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            
+            return false;
+        }
+
+        return path.Equals("/" + pathBase);
     }
 }
