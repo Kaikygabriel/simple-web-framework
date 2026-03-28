@@ -22,7 +22,30 @@ public class ControllerMiddleware : IMiddleware
         
         if (requestLines.Count == 0)
             return;
+        
+        //chat
+        var contentLength = 0;
 
+        foreach (var header in requestLines)
+        {
+            if (header.StartsWith("Content-Length", StringComparison.OrdinalIgnoreCase))
+            {
+                var value = header.Split(':')[1].Trim();
+                contentLength = int.Parse(value);
+            }
+        }
+        string body = string.Empty;
+
+        if (contentLength > 0)
+        {
+            var buffer = new char[contentLength];
+            await reader.ReadBlockAsync(buffer, 0, contentLength);
+            body = new string(buffer);
+        }
+        Console.WriteLine("===== BODY =====");
+        Console.WriteLine(body);
+        
+        //chat
         Console.WriteLine("===== REQUEST =====");
         foreach (var l in requestLines)
             Console.WriteLine(l);
@@ -36,7 +59,7 @@ public class ControllerMiddleware : IMiddleware
         var method = parts[0];
         var path = parts[1];
 
-        ActionResult? result = GetMethod(method,path);
+        ActionResult? result = GetMethod(method,path,body);
 
         if (result is null)
             result = new("404 Not Found", "HTTP/1.1 404 Not Found");
@@ -48,10 +71,12 @@ public class ControllerMiddleware : IMiddleware
         await stream.FlushAsync();
     }
 
-    private ActionResult? GetMethod(string method,string path)
+    private ActionResult? GetMethod(string method,string path,string body)
     {
         if (method.Equals("Get", StringComparison.CurrentCultureIgnoreCase))
             return HttpGetAttribute.ExecuteAction(path);
+        if (method.Equals("Post", StringComparison.CurrentCultureIgnoreCase))
+            return HttpPostAttribute.ExecuteAction(path,body);
 
         return null;
     }

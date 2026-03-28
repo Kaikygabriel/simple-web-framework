@@ -8,14 +8,14 @@ namespace MyServer;
 
 public class ControllerTest : Controller
 {
-    [HttpGet("hello/{teste}/")]
-    public ActionResult Teste([FromRoute]string teste)
+    [HttpGet("hello/{nome}/{sobreNome}")]
+    public ActionResult Teste([FromRoute]string nome,[FromRoute]string sobreNome)
     {
-        return Ok("Hello World " +teste);
+        return Ok("Seu nome é  " +nome +" e sobrenome é " + sobreNome);
     }
     
-    [HttpGet("Product")] 
-    public ActionResult produtos([FromQuery]int price,[FromQuery]string name)
+    [HttpGet("Product/{name}")] 
+    public ActionResult produtos([FromQuery]int price,[FromRoute]string name)
     {
         return Ok(new
         {
@@ -24,9 +24,9 @@ public class ControllerTest : Controller
         });
     }
     
-    [HttpGet("teste")]
-    public ActionResult teste()
+    [HttpPost("teste")]
+    public ActionResult Teste(int price)
     {
-        return NotFound("Product is invalid");
+        return Ok($"Product  price {price}");
     }
 }

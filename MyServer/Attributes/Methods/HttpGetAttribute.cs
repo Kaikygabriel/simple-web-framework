@@ -14,7 +14,7 @@ public class HttpGetAttribute : Attribute,IMethod
     }
     public string EndPointName { get; private init; }
     
-     public static ActionResult? ExecuteAction(string path)
+    public static ActionResult? ExecuteAction(string path,string body = "")
     {
         var methods = GetAllMethod();
         ActionResult? result = null;
@@ -22,7 +22,7 @@ public class HttpGetAttribute : Attribute,IMethod
         if (path.Contains('?'))
         {
             var segregationsParts = path.Split('?');
-            queryParams = ContainsParameters(path);
+            queryParams = ContainsParametersFromQuery(path);
             
             path = segregationsParts[0];
         }
@@ -30,17 +30,16 @@ public class HttpGetAttribute : Attribute,IMethod
         foreach (var metodo in methods)
         {
             var atributo = metodo.GetCustomAttribute<HttpGetAttribute>();
-            
+
             if ( atributo is not null&& IsMethodVerify(path,"/"+atributo.EndPointName))
             {
-
-                Console.WriteLine($"\r \t  {atributo.EndPointName} \t \r");
+                var endPointName = "/" + atributo!.EndPointName;
+                
                 var instancia = Activator.CreateInstance(metodo.DeclaringType!);
                 var parametros = metodo.GetParameters();
 
                 if (parametros.Length > 0)
                 {
-                    
                     var argumentos = new object?[parametros.Length];
                     for (var p =0; p < parametros.Length ; p++)
                     {
@@ -58,7 +57,7 @@ public class HttpGetAttribute : Attribute,IMethod
                         }
                     } 
               
-                    var routeParams = ContainsFromRouteParameter(path, "/"+atributo.EndPointName);
+                    var routeParams = ContainsFromRouteParameter(path,endPointName);
                     for (var p =0; p < parametros.Length ; p++)
                     {
                         var parametro = parametros[p];
@@ -92,7 +91,7 @@ public class HttpGetAttribute : Attribute,IMethod
             .Where(m => m.GetCustomAttribute<HttpGetAttribute>() != null);
     }
 
-    private static Dictionary<string, string> ContainsParameters(string path)
+    private static Dictionary<string, string> ContainsParametersFromQuery(string path)
     {
         var queryString = "";
         if (path.Contains("?"))
@@ -110,8 +109,6 @@ public class HttpGetAttribute : Attribute,IMethod
     
     private static Dictionary<string, string> ContainsFromRouteParameter(string path,string pathBase)
     {
-        // path -> http://localhost:5000/hello/ola
-        // pathBase -> http://localhost:5000/hello/{teste}
         var queryString = new Dictionary<string,string>();
         if (pathBase.Contains('{')&&pathBase.Contains('}'))
         {
@@ -123,10 +120,10 @@ public class HttpGetAttribute : Attribute,IMethod
                 {
                     if (pathBaseArr[a].Contains('{') && pathBaseArr[a].Contains('}'))
                     {
-                        queryString[pathBaseArr[a]] = pathArr[a];
+                        var key = pathBaseArr[a].Replace("}", "").Replace("{","");
+                        queryString[key] = pathArr[a];
                     }
                 }
-                
             }
         }
 
@@ -163,6 +160,6 @@ public class HttpGetAttribute : Attribute,IMethod
             return false;
         }
 
-        return path.Equals("/" + pathBase);
+        return path.Equals(pathBase);
     }
 }

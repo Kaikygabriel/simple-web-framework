@@ -9,7 +9,7 @@ public static class Response
     {
         return 
             $"{actionResult.StatusLine}\r\n" +
-            "Content-Type: text/plain; charset=utf-8\r\n" +
+            "Content-Type: application/json; charset=utf-8\r\n" +
             $"Content-Length: {Encoding.UTF8.GetByteCount(actionResult.ResponseBody)}\r\n" +
             "Connection: close\r\n" +
             "\r\n" +

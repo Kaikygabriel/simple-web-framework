@@ -4,5 +4,5 @@ namespace MyServer.Abstraction;
 
 public interface IMethod
 {
-    static abstract ActionResult? ExecuteAction(string path);
+    static abstract ActionResult? ExecuteAction(string path,string body = "");
 }
