@@ -33,17 +33,16 @@ public class HttpPostAttribute :Attribute, IMethod
 
                 if (parametros.Length > 0)
                 {
-                    var argumentos = new List<object>();
-                    if (!string.IsNullOrWhiteSpace(body))
-                    {
-                        argumentos.Add(GetParametersBody(body));
-                    }
+                    var argumentos = new object[parametros.Length];
+                    
                     var routeParams = ContainsFromRouteParameter(path,endPointName);
                     for (var p =0; p < parametros.Length ; p++)
                     {
                         var parametro = parametros[p];
                         var fromRoute = parametro.GetCustomAttribute<FromRouteAttribute>();
-                    
+                        var fromBody = parametro.GetCustomAttribute<FromBodyAttribute>();
+
+                        
                         if (fromRoute != null)
                         {
                             var nome = fromRoute.Value ?? parametro.Name!;
@@ -53,11 +52,22 @@ public class HttpPostAttribute :Attribute, IMethod
                             else
                                 argumentos[p] = null;
                         }
+                        else if (fromBody != null)
+                        {
+                            argumentos[p] = JsonSerializer.Deserialize(
+                                body,
+                                parametro.ParameterType,
+                                new JsonSerializerOptions
+                                {
+                                    PropertyNameCaseInsensitive = true
+                                }
+                            );
+                        }
+                        else
+                        {
+                            argumentos[p] = null;
+                        }
                     }
-
-                    Console.WriteLine("Lgo abaixou deu foreach");
-                    foreach(var a in argumentos)
-                        Console.WriteLine(a);
                     
                     result = (ActionResult)metodo.Invoke(instancia,argumentos.ToArray())!;
                 }

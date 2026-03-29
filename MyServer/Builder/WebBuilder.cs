@@ -17,6 +17,8 @@ public class WebBuilder
     {
         var listener = new TcpListener(IPAddress.Any, _port);
         listener.Start();
-        return new WebApplication(listener,_port);
+        Console.WriteLine($"Server rodando em http://localhost:{_port}" );
+
+        return new WebApplication(listener);
     }
 }

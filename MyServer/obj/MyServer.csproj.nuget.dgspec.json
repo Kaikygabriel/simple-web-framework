@@ -1,25 +1,26 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\kaiky\\Downloads\\kaka\\C#\\ProjetosPortifolio\\MyServer\\MyServer\\MyServer.csproj": {}
+    "/home/kaiky/Documentos/Portifolio/simple-web-framework/MyServer/MyServer.csproj": {}
   },
   "projects": {
-    "C:\\Users\\kaiky\\Downloads\\kaka\\C#\\ProjetosPortifolio\\MyServer\\MyServer\\MyServer.csproj": {
+    "/home/kaiky/Documentos/Portifolio/simple-web-framework/MyServer/MyServer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\kaiky\\Downloads\\kaka\\C#\\ProjetosPortifolio\\MyServer\\MyServer\\MyServer.csproj",
+        "projectUniqueName": "/home/kaiky/Documentos/Portifolio/simple-web-framework/MyServer/MyServer.csproj",
         "projectName": "MyServer",
-        "projectPath": "C:\\Users\\kaiky\\Downloads\\kaka\\C#\\ProjetosPortifolio\\MyServer\\MyServer\\MyServer.csproj",
-        "packagesPath": "C:\\Users\\kaiky\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\kaiky\\Downloads\\kaka\\C#\\ProjetosPortifolio\\MyServer\\MyServer\\obj\\",
+        "projectPath": "/home/kaiky/Documentos/Portifolio/simple-web-framework/MyServer/MyServer.csproj",
+        "packagesPath": "/home/kaiky/.nuget/packages/",
+        "outputPath": "/home/kaiky/Documentos/Portifolio/simple-web-framework/MyServer/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\kaiky\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/home/kaiky/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
+          "/usr/lib/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -59,7 +60,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.104/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/10.0.104/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",

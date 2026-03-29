@@ -9,11 +9,9 @@ public class WebApplication
 {
     private List<IMiddleware> _middlewares = new List<IMiddleware>();
     private readonly TcpListener _client;
-    private readonly int _port;
-    public WebApplication(TcpListener client,int port)
+    public WebApplication(TcpListener client)
     {
         _client = client;
-        _port  = port;
     }
 
     public static WebBuilder CreateBuilder(int port =5000)
@@ -21,7 +19,6 @@ public class WebApplication
     
     public async Task Run()
     {
-        Console.WriteLine($"Server rodando em http://localhost:{_port}" );
         while (true)
         {
             var client = await _client.AcceptTcpClientAsync();

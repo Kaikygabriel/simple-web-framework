@@ -23,7 +23,7 @@ public class ControllerMiddleware : IMiddleware
         if (requestLines.Count == 0)
             return;
         
-        //chat
+        //body
         var contentLength = 0;
 
         foreach (var header in requestLines)
@@ -45,7 +45,7 @@ public class ControllerMiddleware : IMiddleware
         Console.WriteLine("===== BODY =====");
         Console.WriteLine(body);
         
-        //chat
+        //body
         Console.WriteLine("===== REQUEST =====");
         foreach (var l in requestLines)
             Console.WriteLine(l);

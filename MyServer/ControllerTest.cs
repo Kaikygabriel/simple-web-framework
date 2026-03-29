@@ -13,7 +13,7 @@ public class ControllerTest : Controller
     {
         return Ok("Seu nome é  " +nome +" e sobrenome é " + sobreNome);
     }
-    
+        
     [HttpGet("Product/{name}")] 
     public ActionResult produtos([FromQuery]int price,[FromRoute]string name)
     {
@@ -25,9 +25,10 @@ public class ControllerTest : Controller
     }
     
     [HttpPost("teste")]
-    public ActionResult Teste(int price)
+    public ActionResult Teste([FromBody]productDto product)
     {
-        Console.WriteLine(price);
-        return Ok($"Product  price {price}");
+        return Ok($"Product {product.Name}  price {product.Price}");
     }
 }
+
+public record productDto(string Name,decimal Price);
