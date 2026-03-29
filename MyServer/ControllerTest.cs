@@ -19,7 +19,7 @@ public class ControllerTest : Controller
     {
         return Ok(new
         {
-            Name = name,
+            Name = name, 
             Price = price
         });
     }
@@ -27,6 +27,7 @@ public class ControllerTest : Controller
     [HttpPost("teste")]
     public ActionResult Teste(int price)
     {
+        Console.WriteLine(price);
         return Ok($"Product  price {price}");
     }
 }

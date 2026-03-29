@@ -33,11 +33,10 @@ public class HttpPostAttribute :Attribute, IMethod
 
                 if (parametros.Length > 0)
                 {
-                    var argumentos = new object?[parametros.Length];
-
+                    var argumentos = new List<object>();
                     if (!string.IsNullOrWhiteSpace(body))
                     {
-                        argumentos = GetParametersBody(body).ToArray();
+                        argumentos.Add(GetParametersBody(body));
                     }
                     var routeParams = ContainsFromRouteParameter(path,endPointName);
                     for (var p =0; p < parametros.Length ; p++)
@@ -54,8 +53,13 @@ public class HttpPostAttribute :Attribute, IMethod
                             else
                                 argumentos[p] = null;
                         }
-                    } 
-                    result = (ActionResult)metodo.Invoke(instancia,argumentos)!;
+                    }
+
+                    Console.WriteLine("Lgo abaixou deu foreach");
+                    foreach(var a in argumentos)
+                        Console.WriteLine(a);
+                    
+                    result = (ActionResult)metodo.Invoke(instancia,argumentos.ToArray())!;
                 }
                 else
                     result = (ActionResult)metodo.Invoke(instancia,null)!;
@@ -123,8 +127,8 @@ public class HttpPostAttribute :Attribute, IMethod
         return path.Equals(pathBase);
     }
 
-    private static List<Object> GetParametersBody(string body)
+    private static Object GetParametersBody(string body)
     {
-        return JsonSerializer.Deserialize<List<object>>(body) ?? new();
+        return JsonSerializer.Deserialize<object>(body) ?? new();
     }
 }
