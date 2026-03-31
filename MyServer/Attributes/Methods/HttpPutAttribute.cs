@@ -1,20 +1,19 @@
 using System.Reflection;
 using System.Text.Json;
-using MyServer.Abstraction;
 using MyServer.Attributes.Parameters;
 using MyServer.Model.Abstraction;
 
 namespace MyServer.Attributes.Methods;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class HttpPostAttribute :Attribute, IMethod
+public class HttpPutAttribute : Attribute
 {
-    public HttpPostAttribute(string EndPointName)
+    public HttpPutAttribute(string endPointName)
     {
-        this.EndPointName = EndPointName;
+        EndPointName = endPointName;
     }
-    public string EndPointName { get; private init; }
 
+    public string EndPointName { get;private init; }
     public static ActionResult? ExecuteAction(string path, string body = "")
     {
         var methods = GetAllMethod();
@@ -22,7 +21,7 @@ public class HttpPostAttribute :Attribute, IMethod
         
         foreach (var metodo in methods)
         {
-            var atributo = metodo.GetCustomAttribute<HttpPostAttribute>();
+            var atributo = metodo.GetCustomAttribute<HttpPutAttribute>();
 
             if ( atributo is not null&& IsMethodVerify(path,"/"+atributo.EndPointName))
             {
@@ -83,7 +82,7 @@ public class HttpPostAttribute :Attribute, IMethod
 
         return assembly.GetTypes()
             .SelectMany(t => t.GetMethods())
-            .Where(m => m.GetCustomAttribute<HttpPostAttribute>() != null);
+            .Where(m => m.GetCustomAttribute<HttpPutAttribute>() != null);
     }
 
     private static Dictionary<string, string> ContainsFromRouteParameter(string path,string pathBase)

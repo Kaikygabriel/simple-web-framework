@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Text.Json;
 using MyServer.Abstraction;
 using MyServer.Attributes.Parameters;
 using MyServer.Model.Abstraction;
@@ -7,22 +6,30 @@ using MyServer.Model.Abstraction;
 namespace MyServer.Attributes.Methods;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class HttpPostAttribute :Attribute, IMethod
+public class HttpDeleteAttribute : Attribute,IMethod
 {
-    public HttpPostAttribute(string EndPointName)
+    public HttpDeleteAttribute(string EndPointName)
     {
         this.EndPointName = EndPointName;
     }
     public string EndPointName { get; private init; }
-
-    public static ActionResult? ExecuteAction(string path, string body = "")
+    
+    public static ActionResult? ExecuteAction(string path,string body = "")
     {
         var methods = GetAllMethod();
         ActionResult? result = null;
+        var queryParams = new Dictionary<string, string>();
+        if (path.Contains('?'))
+        {
+            var segregationsParts = path.Split('?');
+            queryParams = ContainsParametersFromQuery(path);
+            
+            path = segregationsParts[0];
+        }
         
         foreach (var metodo in methods)
         {
-            var atributo = metodo.GetCustomAttribute<HttpPostAttribute>();
+            var atributo = metodo.GetCustomAttribute<HttpDeleteAttribute>();
 
             if ( atributo is not null&& IsMethodVerify(path,"/"+atributo.EndPointName))
             {
@@ -33,16 +40,29 @@ public class HttpPostAttribute :Attribute, IMethod
 
                 if (parametros.Length > 0)
                 {
-                    var argumentos = new object[parametros.Length];
+                    var argumentos = new object?[parametros.Length];
+                    for (var p =0; p < parametros.Length ; p++)
+                    {
+                        var parametro = parametros[p];
+                        var fromQuery = parametro.GetCustomAttribute<FromQueryAttribute>();
                     
+                        if (fromQuery != null)
+                        {
+                            var nome = fromQuery.Value ?? parametro.Name!;
+                    
+                            if (queryParams.TryGetValue(nome, out var valor))
+                                argumentos[p] = Convert.ChangeType(valor, parametro.ParameterType);
+                            else
+                                argumentos[p] = null;
+                        }
+                    } 
+              
                     var routeParams = ContainsFromRouteParameter(path,endPointName);
                     for (var p =0; p < parametros.Length ; p++)
                     {
                         var parametro = parametros[p];
                         var fromRoute = parametro.GetCustomAttribute<FromRouteAttribute>();
-                        var fromBody = parametro.GetCustomAttribute<FromBodyAttribute>();
-
-                        
+                    
                         if (fromRoute != null)
                         {
                             var nome = fromRoute.Value ?? parametro.Name!;
@@ -52,24 +72,8 @@ public class HttpPostAttribute :Attribute, IMethod
                             else
                                 argumentos[p] = null;
                         }
-                        else if (fromBody != null)
-                        {
-                            argumentos[p] = JsonSerializer.Deserialize(
-                                body,
-                                parametro.ParameterType,
-                                new JsonSerializerOptions
-                                {
-                                    PropertyNameCaseInsensitive = true
-                                }
-                            );
-                        }
-                        else
-                        {
-                            argumentos[p] = null;
-                        }
-                    }
-                    
-                    result = (ActionResult)metodo.Invoke(instancia,argumentos.ToArray())!;
+                    } 
+                    result = (ActionResult)metodo.Invoke(instancia,argumentos)!;
                 }
                 else
                     result = (ActionResult)metodo.Invoke(instancia,null)!;
@@ -77,15 +81,32 @@ public class HttpPostAttribute :Attribute, IMethod
         }
         return result;
     }
+    
     private static IEnumerable<MethodInfo> GetAllMethod()
     {
         var assembly = Assembly.GetExecutingAssembly();
 
         return assembly.GetTypes()
             .SelectMany(t => t.GetMethods())
-            .Where(m => m.GetCustomAttribute<HttpPostAttribute>() != null);
+            .Where(m => m.GetCustomAttribute<HttpDeleteAttribute>() != null);
     }
 
+    private static Dictionary<string, string> ContainsParametersFromQuery(string path)
+    {
+        var queryString = "";
+        if (path.Contains("?"))
+            queryString =  path.Split('?')[1];  
+        
+        var queryParams = new Dictionary<string, string>();
+        foreach (var a in queryString.Split('&'))
+        {
+            var parameter = a.Split('=');
+            if (parameter.Length == 2)
+                queryParams[parameter[0]] = parameter[1];
+        }
+        return queryParams;
+    }
+    
     private static Dictionary<string, string> ContainsFromRouteParameter(string path,string pathBase)
     {
         var queryString = new Dictionary<string,string>();
@@ -108,6 +129,7 @@ public class HttpPostAttribute :Attribute, IMethod
 
         return queryString;
     }
+
     private static bool IsMethodVerify(string path,string pathBase)
     {
         if (pathBase.Contains('{')&&pathBase.Contains('}'))
@@ -127,10 +149,14 @@ public class HttpPostAttribute :Attribute, IMethod
                         
                     }
                     else
+                    {
                         return false;
+                    }
                 }
+
                 return true;
             }
+            
             return false;
         }
 

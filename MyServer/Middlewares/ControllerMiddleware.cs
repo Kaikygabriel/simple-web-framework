@@ -77,6 +77,10 @@ public class ControllerMiddleware : IMiddleware
             return HttpGetAttribute.ExecuteAction(path);
         if (method.Equals("Post", StringComparison.CurrentCultureIgnoreCase))
             return HttpPostAttribute.ExecuteAction(path,body);
+        if (method.Equals("Put", StringComparison.CurrentCultureIgnoreCase))
+            return HttpPutAttribute.ExecuteAction(path,body);
+        if (method.Equals("Delete", StringComparison.CurrentCultureIgnoreCase))
+            return HttpDeleteAttribute.ExecuteAction(path,body);
 
         return null;
     }
