@@ -1,7 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
 using MyServer.Abstraction;
 using MyServer.Attributes;
 using MyServer.Attributes.Methods;
 using MyServer.Attributes.Parameters;
+using MyServer.Jwt.Models;
+using MyServer.Jwt.Services;
 using MyServer.Model.Abstraction;
 
 namespace MyServer;
@@ -24,10 +29,18 @@ public class ControllerTest : Controller
         });
     }
     
-    [HttpPost("teste")]
-    public ActionResult Teste([FromBody]productDto product)
+    [HttpPost("Register")]
+    public ActionResult Register([FromBody]string name)
     {
-        return Ok($"Product {product.Name}  price {product.Price}");
+        var claims = new List<ClaimsType>()
+        {
+            new("exp", DateTime.UtcNow.AddHours(1) ),
+            new("name", name),
+            new("Idade",18),
+        };
+        var tokenDescriptor = new TokenDescriptor(claims,Encoding.UTF8.GetBytes("teste1234@teste@teste"));
+        var token = JwtHandler.CreateToken(tokenDescriptor);
+        return Ok(token);
     }
 }
 

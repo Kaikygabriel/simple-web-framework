@@ -2,8 +2,9 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using MyServer.Jwt.Models;
 
-namespace MyServer.Jwt;
+namespace MyServer.Jwt.Services;
 
 public class JwtHandler
 {
@@ -15,27 +16,16 @@ public class JwtHandler
             .Replace("=", "");
     }
 
-    public static string GerarToken()
+    public static string CreateToken(TokenDescriptor tokenDescriptor)
     {
-        var secret = "minha-chave-super-secreta";
-
-        // HEADER
         var header = new
         {
             alg = "HS256",
             typ = "JWT"
         };
-
-        // PAYLOAD
-        var payload = new
-        {
-            sub = "123",
-            email = "teste@email.com",
-            exp = DateTimeOffset.UtcNow.AddHours(2).ToUnixTimeSeconds()
-        };
-
+        
         var headerJson = JsonSerializer.Serialize(header);
-        var payloadJson = JsonSerializer.Serialize(payload);
+        var payloadJson = ClaimsType.ToString(tokenDescriptor.Claims);
 
         var headerBase64 = Base64UrlEncode(Encoding.UTF8.GetBytes(headerJson));
         var payloadBase64 = Base64UrlEncode(Encoding.UTF8.GetBytes(payloadJson));
@@ -43,7 +33,7 @@ public class JwtHandler
         var data = $"{headerBase64}.{payloadBase64}";
 
         // SIGNATURE
-        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
+        using var hmac = new HMACSHA256(tokenDescriptor.Key);
         var signatureBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
         var signature = Base64UrlEncode(signatureBytes);
 
