@@ -19,6 +19,7 @@ public class ControllerTest : Controller
         return Ok("Seu nome é  " +nome +" e sobrenome é " + sobreNome);
     }
         
+    [Authorize]
     [HttpGet("Product/{name}")] 
     public ActionResult produtos([FromQuery]int price,[FromRoute]string name)
     {
@@ -34,7 +35,7 @@ public class ControllerTest : Controller
     {
         var claims = new List<ClaimsType>()
         {
-            new("exp", DateTime.UtcNow.AddHours(1) ),
+            new("exp", DateTime.UtcNow.AddMinutes( 1).ToString() ),
             new("name", name),
             new("Idade",18),
         };

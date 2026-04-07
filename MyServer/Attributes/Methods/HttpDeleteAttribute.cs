@@ -17,7 +17,7 @@ public class HttpDeleteAttribute : Attribute,IMethod
     }
     public string EndPointName { get; private init; }
     
-    public static ActionResult? ExecuteAction(string path,string body = "")
+    public static ActionResult? ExecuteAction(string path, List<string> lines,string body = "")
     {
         var methods = GetAllMethod();
         ActionResult? result = null;

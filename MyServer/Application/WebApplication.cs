@@ -38,4 +38,8 @@ public class WebApplication
 
     public void MapControllers()
         => _middlewares.Add(new ControllerMiddleware());
+    
+    public void MapRouting()
+        => _middlewares.Add(new MetadataMiddleware());
+
 }

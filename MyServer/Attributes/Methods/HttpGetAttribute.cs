@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using MyServer.Abstraction;
 using MyServer.Attributes.Parameters;
+using MyServer.Jwt.Services;
 using MyServer.Model.Abstraction;
 
 namespace MyServer.Attributes.Methods;
@@ -17,7 +18,7 @@ public class HttpGetAttribute : Attribute,IMethod
     }
     public string EndPointName { get; private init; }
     
-    public static ActionResult? ExecuteAction(string path,string body = "")
+    public static ActionResult? ExecuteAction(string path,List<string> lines,string body = "")
     {
         var methods = GetAllMethod();
         ActionResult? result = null;
@@ -37,6 +38,23 @@ public class HttpGetAttribute : Attribute,IMethod
             if ( atributo is not null&& IsMethodVerify(path,"/"+atributo.EndPointName))
             {
                 var endPointName = "/" + atributo!.EndPointName;
+
+                var attributeAuthorize = metodo.GetCustomAttribute<AuthorizeAttribute>();
+                if (attributeAuthorize is not null)
+                {
+                    var authentication = lines.FirstOrDefault(x => x.Contains("Authorization:"));
+                    if(authentication is null )
+                        return new ActionResult("", "HTTP/1.1 401 Unauthorized");
+                    
+                    var authenticationTokenSeparator = authentication.Split(' ');
+                    if (authenticationTokenSeparator.Length != 3)
+                        return new ActionResult("", "HTTP/1.1 401 Unauthorized");
+
+                    var tokenReceptor = authenticationTokenSeparator.Last();
+                    if (!JwtHandler.Verifytoken(tokenReceptor))
+                        return new ActionResult("", "HTTP/1.1 401 Unauthorized");
+                }
+                
                 
                 var instancia = Activator.CreateInstance(metodo.DeclaringType!);
                 var parametros = metodo.GetParameters();

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using MyServer.Abstraction;
 using MyServer.Attributes.Parameters;
 using MyServer.Model.Abstraction;
 
 namespace MyServer.Attributes.Methods;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class HttpPutAttribute : Attribute
+public class HttpPutAttribute : Attribute,IMethod
 {
     public HttpPutAttribute(string endPointName)
     {
@@ -17,7 +18,7 @@ public class HttpPutAttribute : Attribute
     }
 
     public string EndPointName { get;private init; }
-    public static ActionResult? ExecuteAction(string path, string body = "")
+    public static ActionResult? ExecuteAction(string path,List<string> lines, string body = "")
     {
         var methods = GetAllMethod();
         ActionResult? result = null;
