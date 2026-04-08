@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 
@@ -10,10 +11,14 @@ public record ClaimsType(string Key, dynamic Value)
     {
         var stringBuilder = new StringBuilder();
         stringBuilder.AppendLine("{");
+        
         foreach (var claim in claims)
         {
-            stringBuilder.AppendLine($""" "{claim.Key}" : {JsonSerializer.Serialize(claim.Value)},  """);
+            stringBuilder.Append($""" "{claim.Key}" : {JsonSerializer.Serialize(claim.Value)} """);
+            if (!claim.Equals(claims.LastOrDefault()))
+                stringBuilder.AppendLine(",");
         }
+        
         stringBuilder.AppendLine("}");
         
         return stringBuilder.ToString();

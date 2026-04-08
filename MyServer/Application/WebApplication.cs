@@ -27,8 +27,10 @@ public class WebApplication
             
             _ = Task.Run(async () =>
             {
+                using var stream = client.GetStream();
+                
                 foreach (var middleware in _middlewares)
-                    await middleware.Execute(client);
+                    await middleware.Execute(stream);
 
                 client.Client.Shutdown(SocketShutdown.Both); 
                 client.Close();

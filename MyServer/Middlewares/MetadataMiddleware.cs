@@ -17,10 +17,9 @@ public class MetadataMiddleware : IMiddleware
         _repository = Repository.Create();
     }
 
-    public async Task Execute(TcpClient client)
+    public async Task Execute(NetworkStream stream)
     {
-        using var stream = client.GetStream();
-        using var reader = new StreamReader(stream, Encoding.UTF8);
+        using var reader = new StreamReader(stream, Encoding.UTF8,leaveOpen: true);
 
         var requestLines = new List<string>();
         string line;

@@ -5,5 +5,5 @@ namespace MyServer.Abstraction;
 
 public interface IMiddleware
 {
-    Task Execute(TcpClient client);
+    Task Execute(NetworkStream stream);
 }

@@ -22,11 +22,8 @@ public class ControllerMiddleware : IMiddleware
     }
 
     
-    public async Task Execute(TcpClient client)
+    public async Task Execute(NetworkStream stream)
     {
-        using var stream = client.GetStream();
-        using var reader = new StreamReader(stream, Encoding.UTF8);
-
         ActionResult? result = GetMethod(_repository.Method,_repository.Path,_repository.Body,_repository.Header);
 
         if (result is null)

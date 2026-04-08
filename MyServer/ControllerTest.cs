@@ -20,7 +20,7 @@ public class ControllerTest : Controller
     }
         
     [Authorize]
-    [HttpGet("Product/{name}")] 
+    [HttpGet("Product")] 
     public ActionResult produtos([FromQuery]int price,[FromRoute]string name)
     {
         return Ok(new
