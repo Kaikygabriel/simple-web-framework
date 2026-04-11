@@ -6,6 +6,7 @@ using MyServer.Abstraction;
 using MyServer.Attributes.Parameters;
 using MyServer.Jwt.Services;
 using MyServer.Model.Abstraction;
+using MyServer.Services;
 
 namespace MyServer.Attributes.Methods;
 
@@ -20,7 +21,7 @@ public class HttpGetAttribute : Attribute,IMethod
     
     public static ActionResult? ExecuteAction(string path,List<string> lines,string body = "")
     {
-        var methods = GetAllMethod();
+        var methods = RouteService.GetAllMethodByAttribute<HttpGetAttribute>();
         ActionResult? result = null;
         var queryParams = new Dictionary<string, string>();
         if (path.Contains('?'))
@@ -35,7 +36,7 @@ public class HttpGetAttribute : Attribute,IMethod
         {
             var atributo = metodo.GetCustomAttribute<HttpGetAttribute>();
 
-            if ( atributo is not null&& IsMethodVerify(path,"/"+atributo.EndPointName))
+            if ( atributo is not null&& RouteService.IsMethodVerify(path,"/"+atributo.EndPointName))
             {
                 var endPointName = "/" + atributo!.EndPointName;
 
@@ -78,7 +79,7 @@ public class HttpGetAttribute : Attribute,IMethod
                         }
                     } 
               
-                    var routeParams = ContainsFromRouteParameter(path,endPointName);
+                    var routeParams = RouteService.ContainsParameterFromRoute(path,endPointName);
                     for (var p =0; p < parametros.Length ; p++)
                     {
                         var parametro = parametros[p];
@@ -103,15 +104,6 @@ public class HttpGetAttribute : Attribute,IMethod
         return result;
     }
     
-    private static IEnumerable<MethodInfo> GetAllMethod()
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-
-        return assembly.GetTypes()
-            .SelectMany(t => t.GetMethods())
-            .Where(m => m.GetCustomAttribute<HttpGetAttribute>() != null);
-    }
-
     private static Dictionary<string, string> ContainsParametersFromQuery(string path)
     {
         var queryString = "";
@@ -126,61 +118,5 @@ public class HttpGetAttribute : Attribute,IMethod
                 queryParams[parameter[0]] = parameter[1];
         }
         return queryParams;
-    }
-    
-    private static Dictionary<string, string> ContainsFromRouteParameter(string path,string pathBase)
-    {
-        var queryString = new Dictionary<string,string>();
-        if (pathBase.Contains('{')&&pathBase.Contains('}'))
-        {
-            var pathArr = path.Split('/');
-            var pathBaseArr = pathBase.Split('/');
-            if (pathArr.Length == pathBaseArr.Length)
-            {
-                for (var a = 0; a < pathArr.Length; a++)
-                {
-                    if (pathBaseArr[a].Contains('{') && pathBaseArr[a].Contains('}'))
-                    {
-                        var key = pathBaseArr[a].Replace("}", "").Replace("{","");
-                        queryString[key] = pathArr[a];
-                    }
-                }
-            }
-        }
-
-        return queryString;
-    }
-
-    private static bool IsMethodVerify(string path,string pathBase)
-    {
-        if (pathBase.Contains('{')&&pathBase.Contains('}'))
-        {
-            var pathArr = path.Split('/');
-            var pathBaseArr = pathBase.Split('/');
-            if (pathArr.Length == pathBaseArr.Length)
-            {
-                for (var a = 0; a < pathArr.Length; a++)
-                {
-                    if (path[a].Equals(pathBase[a]))
-                    {
-                        
-                    }
-                    else if (pathBaseArr[a].Contains('{') && pathBaseArr[a].Contains('}'))
-                    {
-                        
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-            
-            return false;
-        }
-
-        return path.Equals(pathBase);
     }
 }

@@ -9,7 +9,7 @@ namespace MyServer.Application;
 
 public class WebApplication
 {
-    private List<IMiddleware> _middlewares = new List<IMiddleware>();
+    private List<IMiddleware> _middlewares = [];
     private readonly TcpListener _client;
     public WebApplication(TcpListener client)
     {
@@ -31,7 +31,7 @@ public class WebApplication
                 
                 foreach (var middleware in _middlewares)
                     await middleware.Execute(stream);
-
+                
                 client.Client.Shutdown(SocketShutdown.Both); 
                 client.Close();
             });
