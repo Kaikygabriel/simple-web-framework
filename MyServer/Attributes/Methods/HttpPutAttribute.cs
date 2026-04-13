@@ -48,7 +48,7 @@ public class HttpPutAttribute : Attribute,IMethod
                         return new ActionResult("", "HTTP/1.1 401 Unauthorized");
                 }
                 
-                var endPointName = "/" + atributo!.EndPointName;
+                var endPointName = $"/{atributo!.EndPointName}";
                 
                 var instancia = Activator.CreateInstance(metodo.DeclaringType!);
                 var parametros = metodo.GetParameters();
